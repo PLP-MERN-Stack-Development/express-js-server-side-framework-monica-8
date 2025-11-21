@@ -1,71 +1,37 @@
-// server.js - Starter Express server for Week 2 assignment
-
-// Import required modules
+// server.js
+require('dotenv').config(); // Optional: If you use a .env file for environment variables
 const express = require('express');
-const bodyParser = require('body-parser');
-const { v4: uuidv4 } = require('uuid');
+const productRoutes = require('./routes/products'); // Task 2: Route module
+const loggerMiddleware = require('./middleware/logger'); // Task 3: Logger
+const { errorHandler } = require('./middleware/errors'); // Task 4: Global Error Handler
 
-// Initialize Express app
 const app = express();
+// Task 1: Server listens on port 3000 (or from environment)
 const PORT = process.env.PORT || 3000;
 
-// Middleware setup
-app.use(bodyParser.json());
+// --- Task 3: Global Middleware Implementation ---
 
-// Sample in-memory products database
-let products = [
-  {
-    id: '1',
-    name: 'Laptop',
-    description: 'High-performance laptop with 16GB RAM',
-    price: 1200,
-    category: 'electronics',
-    inStock: true
-  },
-  {
-    id: '2',
-    name: 'Smartphone',
-    description: 'Latest model with 128GB storage',
-    price: 800,
-    category: 'electronics',
-    inStock: true
-  },
-  {
-    id: '3',
-    name: 'Coffee Maker',
-    description: 'Programmable coffee maker with timer',
-    price: 50,
-    category: 'kitchen',
-    inStock: false
-  }
-];
+// 3a. Custom Logger Middleware
+app.use(loggerMiddleware);
 
-// Root route
+// 3b. Middleware to parse JSON request bodies
+app.use(express.json()); 
+
+// --- Task 1: Basic "Hello World" Route ---
 app.get('/', (req, res) => {
-  res.send('Welcome to the Product API! Go to /api/products to see all products.');
+    res.send('Hello World! Welcome to the Express.js Product API.');
 });
 
-// TODO: Implement the following routes:
-// GET /api/products - Get all products
-// GET /api/products/:id - Get a specific product
-// POST /api/products - Create a new product
-// PUT /api/products/:id - Update a product
-// DELETE /api/products/:id - Delete a product
+// --- Task 2: Mount RESTful API Routes ---
+// All product routes will be prefixed with /api/products
+app.use('/api/products', productRoutes);
 
-// Example route implementation for GET /api/products
-app.get('/api/products', (req, res) => {
-  res.json(products);
-});
+// --- Task 4: Global Error Handling Middleware ---
+// MUST be the last middleware registered
+app.use(errorHandler);
 
-// TODO: Implement custom middleware for:
-// - Request logging
-// - Authentication
-// - Error handling
-
-// Start the server
+// --- Task 1: Start Server ---
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`✅ Server is running on http://localhost:${PORT}`);
+    console.log(`API endpoints available at http://localhost:${PORT}/api/products`);
 });
-
-// Export the app for testing purposes
-module.exports = app; 
